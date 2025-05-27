@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Market Price - Deriv</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .price-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 300px;
+    }
+
+    .price-container h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-size: 36px;
+      color: #27ae60;
+      margin-top: 10px;
+    }
+
+    .symbol {
+      font-size: 16px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="price-container">
+    <h1>Live Price</h1>
+    <div class="symbol">Symbol: <span id="symbol">R_100</span></div>
+    <div class="price" id="price">Loading...</div>
+  </div>
+
+  <script>
+    const symbol = "R_100";  // You can change to R_50, R_75, Boom1000, etc.
+    const priceElement = document.getElementById("price");
+
+    const ws = new WebSocket("wss://ws.binaryws.com/websockets/v3?app_id=1089");
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({
+        "ticks": symbol,
+        "subscribe": 1
+      }));
+    };
+
+    ws.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      if (data.tick) {
+        priceElement.textContent = data.tick.quote.toFixed(2);
+      }
+    };
+
+    ws.onerror = (err) => {
+      priceElement.textContent = "Error fetching data.";
+      console.error("WebSocket error:", err);
+    };
+  </script>
+
+</body>
+</html>
