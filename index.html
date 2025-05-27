@@ -1,78 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Live Market Price - Deriv</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deriv Live Candlestick Chart</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .price-container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       text-align: center;
-      width: 300px;
+      margin: 0;
+      padding: 0;
     }
-
-    .price-container h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
+    header {
+      background: #4a90e2;
+      color: white;
+      padding: 1rem;
     }
-
-    .price {
-      font-size: 36px;
-      color: #27ae60;
-      margin-top: 10px;
+    .controls {
+      margin: 1rem;
     }
-
-    .symbol {
-      font-size: 16px;
-      color: #777;
+    select, input, button {
+      padding: 0.5rem;
+      margin: 0.5rem;
+    }
+    #chart {
+      width: 95%;
+      height: 600px;
+      margin: auto;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h2>Deriv Live Candlestick Chart</h2>
+  </header>
 
-  <div class="price-container">
-    <h1>Live Price</h1>
-    <div class="symbol">Symbol: <span id="symbol">R_100</span></div>
-    <div class="price" id="price">Loading...</div>
+  <div class="controls">
+    <select id="market-select">
+      <option value="R_100">Volatility 100 Index</option>
+      <option value="R_50">Volatility 50 Index</option>
+      <option value="R_25">Volatility 25 Index</option>
+      <option value="R_10">Volatility 10 Index</option>
+      <option value="R_75">Volatility 75 Index</option>
+      <option value="1HZ100V">Volatility 100 (1s)</option>
+      <option value="1HZ50V">Volatility 50 (1s)</option>
+      <option value="1HZ10V">Volatility 10 (1s)</option>
+      <option value="Boom_1000_Index">Boom 1000 Index</option>
+      <option value="Crash_1000_Index">Crash 1000 Index</option>
+      <option value="Boom_500_Index">Boom 500 Index</option>
+      <option value="Crash_500_Index">Crash 500 Index</option>
+    </select>
+
+    <select id="time-select">
+      <option value="60">1 Minute</option>
+      <option value="300">5 Minutes</option>
+      <option value="900">15 Minutes</option>
+    </select>
+
+    <input id="price-input" type="number" placeholder="Enter Trade Price" />
+
+    <button onclick="toggleSMA()">Toggle SMA</button>
   </div>
 
+  <div id="chart"></div>
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script>
-    const symbol = "R_100";  // You can change to R_50, R_75, Boom1000, etc.
-    const priceElement = document.getElementById("price");
+    let socket;
+    let smaVisible = false;
+    let smaLine = null;
+    let market = document.getElementById("market-select").value;
+    let interval = parseInt(document.getElementById("time-select").value);
 
-    const ws = new WebSocket("wss://ws.binaryws.com/websockets/v3?app_id=1089");
+    document.getElementById("market-select").addEventListener("change", updateChart);
+    document.getElementById("time-select").addEventListener("change", updateChart);
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
-        "ticks": symbol,
-        "subscribe": 1
-      }));
-    };
+    function toggleSMA() {
+      smaVisible = !smaVisible;
+      updateChart();
+    }
 
-    ws.onmessage = (msg) => {
-      const data = JSON.parse(msg.data);
-      if (data.tick) {
-        priceElement.textContent = data.tick.quote.toFixed(2);
+    function updateChart() {
+      market = document.getElementById("market-select").value;
+      interval = parseInt(document.getElementById("time-select").value);
+      if (socket) socket.close();
+      connectSocket();
+    }
+
+    function connectSocket() {
+      socket = new WebSocket("wss://ws.binaryws.com/websockets/v3?app_id=1089");
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({
+          ticks_history: market,
+          style: "candles",
+          adjust_start_time: 1,
+          count: 100,
+          granularity: interval,
+          subscribe: 1
+        }));
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.candles) {
+          drawChart(data.candles);
+        } else if (data.tick) {
+          // Live tick - could be used to extend chart
+        }
+      };
+    }
+
+    function drawChart(candles) {
+      const x = candles.map(c => new Date(c.epoch * 1000));
+      const open = candles.map(c => c.open);
+      const high = candles.map(c => c.high);
+      const low = candles.map(c => c.low);
+      const close = candles.map(c => c.close);
+
+      const candlestick = {
+        x, open, high, low, close, type: 'candlestick',
+        name: market, increasing: {line: {color: 'green'}},
+        decreasing: {line: {color: 'red'}}
+      };
+
+      const line = {
+        x, y: close, type: 'scatter', mode: 'lines+markers',
+        line: {color: '#666'}, name: 'Price Line'
+      };
+
+      let data = [candlestick, line];
+
+      if (smaVisible) {
+        const sma = calcSMA(close, 10);
+        const smaTrace = {
+          x: x.slice(10 - 1),
+          y: sma,
+          type: 'scatter',
+          mode: 'lines',
+          line: {color: 'blue'},
+          name: 'SMA (10)'
+        };
+        data.push(smaTrace);
       }
-    };
 
-    ws.onerror = (err) => {
-      priceElement.textContent = "Error fetching data.";
-      console.error("WebSocket error:", err);
-    };
+      const tradePrice = parseFloat(document.getElementById("price-input").value);
+      if (!isNaN(tradePrice)) {
+        const priceLine = {
+          x, y: Array(x.length).fill(tradePrice),
+          type: 'scatter', mode: 'lines',
+          line: {color: 'orange', dash: 'dot'},
+          name: 'Trade Price'
+        };
+        data.push(priceLine);
+      }
+
+      Plotly.newPlot('chart', data, {
+        title: Live Market: ${market},
+        xaxis: {rangeslider: {visible: false}},
+        yaxis: {autorange: true}
+      });
+    }
+
+    function calcSMA(data, period) {
+      const sma = [];
+      for (let i = 0; i <= data.length - period; i++) {
+        const slice = data.slice(i, i + period);
+        const avg = slice.reduce((a, b) => a + b, 0) / period;
+        sma.push(avg);
+      }
+      return sma;
+    }
+
+    connectSocket();
   </script>
-
 </body>
 </html>
