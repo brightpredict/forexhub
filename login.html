@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Forex Candlestick Patterns</title>
+  <title>Forex Candlestick Patterns - Access</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -18,14 +18,17 @@
       padding: 1rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
-    .controls {
-      margin: 1rem;
-      background: rgba(255,255,255,0.05);
+    .access-container {
+      background: rgba(0,0,0,0.3);
       padding: 1rem;
+      margin: 2rem auto;
+      width: 320px;
       border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+    }
+    .access-container input {
+      width: 90%;
+      margin: 0.5rem auto;
+      display: block;
     }
     select, input, button {
       padding: 0.5rem;
@@ -34,22 +37,6 @@
       border: none;
       outline: none;
     }
-    #chart {
-      width: 95%;
-      height: 600px;
-      margin: auto;
-    }
-    .login-container {
-      background: rgba(0,0,0,0.3);
-      padding: 1rem;
-      margin: 1rem auto;
-      width: 300px;
-      border-radius: 10px;
-    }
-    .login-container input {
-      width: 90%;
-      margin: 0.5rem auto;
-    }
   </style>
 </head>
 <body>
@@ -57,10 +44,49 @@
     <h2>Forex Candlestick Patterns</h2>
   </header>
 
-  <div class="login-container">
-    <h3>Login</h3>
-    <input id="login-email" type="email" placeholder="Email" required /><br>
-    <input id="login-password" type="password" placeholder="Password" required /><br>
-    <button onclick="loginUser()">Login</button>
-    <p>if you don't have an account <a href="registration.html">signup</a></p>
-  </div>
+  <div class="access-container">
+    <h3> Login</h3>
+    <input id="access-email" type="email" placeholder="Email " required />
+    <input id="access-password" type="password" placeholder="Password " required />
+    <input id="access-code" type="text" placeholder="Access Code" required />
+    <button onclick="validateAccess()">Enter</button>
+    <p>If you don't have an access code, please <a href="index.html">request access</a></p>
+  </div>
+
+  <script>
+    // List of valid secret credentials
+    const validCredentials = [
+      {
+        email: "user@example.com",
+        password: "123",
+        code: "FXACCESS2025"
+      },
+      {
+        email: "trader@demo.com",
+        password: "securepass456",
+        code: "TRADE2025"
+      }
+      // You can add more users here
+    ];
+
+    function validateAccess() {
+      const email = document.getElementById('access-email').value.trim();
+      const password = document.getElementById('access-password').value.trim();
+      const code = document.getElementById('access-code').value.trim();
+
+      const isValid = validCredentials.some(user =>
+        user.email === email &&
+        user.password === password &&
+        user.code === code
+      );
+
+      if (isValid) {
+        alert("Access granted!");
+        window.location.href = "home.html"; // Replace with your target page
+      } else {
+        alert("Access denied. Please check your credentials.");
+      }
+    }
+  </script>
+</body>
+</html>

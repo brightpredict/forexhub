@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trading Schedule & Videos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    h1 {
+      color: #013a63;
+    }
+
+    .timetable {
+      background-color: #013a63;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      max-width: 200px;
+      line-height: 1.5;
+    }
+
+    section {
+      background: white;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #013a63;
+    }
+
+    .video-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 10px;
+      outline: none;
+    }
+     h4{
+      background: red;
+      animation: blink-animation 4s
+      steps(1, start) infinite;
+      viaibility: hidden;
+}
+
+
+    @keyframes blink-animation {
+      0% {visibility: visible;}
+      20%{ visibility: hidden;}
+      100% {visibility: visible;}
+
+    }
+  </style>
+</head>
+<body>
+   <button><a href="home.html">GO BACK</a></button>
+
+   <h4>Please visit tommorow at 9:00am</h4>
+
+  <header>
+    <h1>Trading Room</h1>
+    <div class="timetable">
+      <strong>Trading Schedule:</strong><br>
+      Tuesday - Saturday<br>
+      9:00 AM - 4:00 PM
+    </div>
+  </header>
+
+  <section>
+    <h2>Watch Today's Trading Session Videos</h2>
+    <div class="video-container">
+      <video controls>
+        <source src="video1.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <video controls>
+        <source src="video2.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <video controls>
+        <source src="video3.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <video controls>
+        <source src="video4.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </section>
+
+</body>
+</html>
