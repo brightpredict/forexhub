@@ -38,6 +38,14 @@
       outline: none;
     }
   </style>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("wkI_zzv-LS-eRPwAA"); // Replace with your actual EmailJS User ID
+    })();
+  </script>
 </head>
 <body>
   <header>
@@ -45,16 +53,15 @@
   </header>
 
   <div class="access-container">
-    <h3> Login</h3>
-    <input id="access-email" type="email" placeholder="Email " required />
-    <input id="access-password" type="password" placeholder="Password " required />
-    <input id="acess-code" type="text" placeholder="Access Code" required />
-    <button onclick="validateAccess()">Enter</button>
+    <h3>Login</h3>
+    <input id="access-email" type="email" placeholder="Email" required />
+    <input id="access-password" type="password" placeholder="Password" required />
+    <input id="access-code" type="text" placeholder="Access Code" required />
+    <button onclick="validateAccess()">Login</button>
     <p>If you don't have an access code, please <a href="index.html">request access</a></p>
   </div>
 
   <script>
-    // List of valid secret credentials
     const validCredentials = [
       {
         email: "addosamuel1256@icloud.com",
@@ -66,7 +73,7 @@
         password: "41",
         code: "2025"
       }
-      // You can add more users here
+      // Add more users here if needed
     ];
 
     function validateAccess() {
@@ -81,8 +88,19 @@
       );
 
       if (isValid) {
-        alert("Access granted!");
-        window.location.href = "home.html"; // Replace with your target page
+        // Send email using EmailJS
+        emailjs.send("service_xuw4eys", "template_c0462aw", {
+          user_email: email,
+          login_time: new Date().toLocaleString()
+        })
+        .then(() => {
+          alert("Access granted!");
+          window.location.href = "home.html";
+        }, (error) => {
+          console.error("EmailJS Error:", error);
+          alert("Access granted");
+          window.location.href = "home.html";
+        });
       } else {
         alert("Access denied. Please check your credentials.");
       }
